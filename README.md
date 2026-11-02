@@ -7,7 +7,7 @@ ChatGPT, …) can connect with the standard MCP authorization flow.
 
 ## Installation
 
-Mautic 7 (Composer-based installation):
+Requires **Mautic 7.2+** (Composer-based installation) and **PHP 8.4+**:
 
 ```bash
 composer require kopexa/mautic-oauth-bundle
@@ -50,7 +50,9 @@ Configuration, security model and endpoints:
 
 - `bin/check.sh` checks the package (PHP lint, `composer validate`, version
   consistency). CI runs it on every push and pull request.
-- Integration tests run in
+- `tests/functional/run.sh` installs the plugin into a real Mautic 7 and
+  tests it over HTTP; CI runs it on PHP 8.4 and 8.5.
+- End-to-end tests also run in
   [kopexa-grc/mautic-stack](https://github.com/kopexa-grc/mautic-stack): its
   smoke test installs this package into the Mautic image and exercises it
   end to end.
