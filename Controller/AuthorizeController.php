@@ -11,6 +11,7 @@ use Mautic\CoreBundle\Model\AuditLogModel;
 use MauticPlugin\KopexaOAuthBundle\Entity\User;
 use MauticPlugin\KopexaOAuthBundle\Service\Psr7Bridge;
 use MauticPlugin\KopexaOAuthBundle\Service\ServerFactory;
+use MauticPlugin\KopexaOAuthBundle\Scope\ScopeRegistry;
 use MauticPlugin\KopexaOAuthBundle\Service\Settings;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +30,7 @@ final class AuthorizeController
 
     public function __construct(
         private readonly Settings $settings,
+        private readonly ScopeRegistry $registry,
         private readonly ServerFactory $factory,
         private readonly Psr7Bridge $bridge,
         private readonly UserHelper $userHelper,
@@ -85,11 +87,11 @@ final class AuthorizeController
             $authRequest = $this->validate($request, $entry['query']);
             $approved    = 'approve' === $request->request->get('decision');
             // The user may grant fewer scopes than requested (checkboxes).
-            // mcp:read is always kept; opt-in scopes only when ticked.
+            // Default scopes are always kept; the others only when ticked.
             $ticked = (array) ($request->request->all()['scopes'] ?? []);
             $authRequest->setScopes(array_values(array_filter(
                 $authRequest->getScopes(),
-                fn ($scope): bool => 'mcp:read' === $scope->getIdentifier() || in_array($scope->getIdentifier(), $ticked, true)
+                fn ($scope): bool => $this->registry->isDefault($scope->getIdentifier()) || in_array($scope->getIdentifier(), $ticked, true)
             )));
             $authRequest->setUser(new User($userId));
             $authRequest->setAuthorizationApproved($approved);
@@ -158,15 +160,13 @@ final class AuthorizeController
     private function consentPage(AuthorizationRequestInterface $authRequest, string $txn, string $userName, string $email): Response
     {
         $e        = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $scopes   = $this->settings->scopes();
         $redirect = (string) ($authRequest->getRedirectUri() ?? $authRequest->getClient()->getRedirectUri()[0] ?? '');
         $host     = (string) parse_url($redirect, PHP_URL_HOST);
         $items    = '';
-        $optin    = $this->settings->optinScopes();
         foreach ($authRequest->getScopes() as $scope) {
             $id       = $scope->getIdentifier();
-            $required = 'mcp:read' === $id;
-            $isOptin  = in_array($id, $optin, true);
+            $required = $this->registry->isDefault($id);
+            $isOptin  = $this->registry->isOptIn($id);
             $items .= sprintf(
                 '<li class="%s"><label><input type="checkbox" name="scopes[]" value="%s"%s%s> <code>%s</code> %s</label></li>',
                 $isOptin ? 'optin' : '',
@@ -174,7 +174,7 @@ final class AuthorizeController
                 $isOptin ? '' : ' checked',
                 $required ? ' disabled' : '',
                 $e($id),
-                $e($scopes[$id] ?? '')
+                $e($this->registry->description($id))
             );
         }
         $token = $this->csrf->getToken(self::CSRF_ID)->getValue();

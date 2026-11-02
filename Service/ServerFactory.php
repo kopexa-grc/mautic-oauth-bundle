@@ -11,6 +11,7 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use MauticPlugin\KopexaOAuthBundle\Repository\ClientRepository;
 use MauticPlugin\KopexaOAuthBundle\Repository\GrantRepository;
 use MauticPlugin\KopexaOAuthBundle\Repository\ScopeRepository;
+use MauticPlugin\KopexaOAuthBundle\Scope\ScopeRegistry;
 
 /**
  * OAuth 2.1 profile: authorization code with PKCE (required for every
@@ -26,6 +27,7 @@ class ServerFactory
         private readonly ClientRepository $clients,
         private readonly GrantRepository $grants,
         private readonly ScopeRepository $scopes,
+        private readonly ScopeRegistry $registry,
     ) {
     }
 
@@ -42,7 +44,7 @@ class ServerFactory
             new CryptKey($this->settings->privateKey(), null, false),
             $this->settings->encryptionKey()
         );
-        $server->setDefaultScope('mcp:read');
+        $server->setDefaultScope(implode(' ', $this->registry->defaults()));
 
         $accessTtl  = new \DateInterval('PT'.$this->settings->accessTtl().'S');
         $refreshTtl = new \DateInterval('PT'.$this->settings->refreshTtl().'S');

@@ -54,16 +54,15 @@ return [
         'kopexa_oauth_encryption_key' => '',
         // Hosts that dynamically registered clients may redirect to.
         'kopexa_oauth_redirect_hosts' => ['claude.ai', 'claude.com', 'chatgpt.com', 'chat.openai.com', 'localhost', '127.0.0.1'],
-        // Scopes this server issues.
-        'kopexa_oauth_scopes'         => [
-            'mcp:read'           => 'Read contacts, segments, emails, campaigns and statistics',
-            'mcp:write'          => 'Create and edit unpublished emails and campaigns and their campaign flows',
-            'mcp:contacts:write' => 'Create and update contacts, create segments, add contacts to segments and remove them (contacts added to segments can enter running campaigns and segment emails)',
-            'mcp:campaigns:live' => 'Change RUNNING campaigns: changes are live and Mautic may send emails because of them',
-        ],
+        // Scopes are declared by the bundles that enforce them
+        // (Scope\ScopeProviderInterface, e.g. kopexa/mautic-mcp-bundle).
+        // Operator overrides: scope => description (adds scopes or
+        // replaces descriptions), further default and opt-in scopes.
+        'kopexa_oauth_scopes'         => [],
+        'kopexa_oauth_default_scopes' => [],
         // Scopes the consent page shows unticked and highlighted: the user
         // has to allow them explicitly, even if the client asks for them.
-        'kopexa_oauth_optin_scopes'   => ['mcp:campaigns:live'],
+        'kopexa_oauth_optin_scopes'   => [],
         // Resource (audience) tokens are issued for; default <site_url>/mcp.
         'kopexa_oauth_resource'       => '',
         'kopexa_oauth_access_ttl'     => 3600,

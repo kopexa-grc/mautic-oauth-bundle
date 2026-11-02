@@ -14,7 +14,7 @@ echo "OAuth 2.1 authorization server"
 [[ "$(curl -s "$BASE/api/contacts" | jq -r '.errors[0].type')" == api_disabled ]] \
   && pass "Mautic REST API disabled, still blocked" || fail "REST API not blocked"
 meta="$(curl -s "$BASE/.well-known/oauth-authorization-server")"
-jq -e --arg b "$BASE" '.issuer == $b and .code_challenge_methods_supported == ["S256"] and .token_endpoint_auth_methods_supported == ["none"]' <<<"$meta" >/dev/null \
+jq -e --arg b "$BASE" '.issuer == $b and .scopes_supported == ["mcp:read", "mcp:write", "mcp:campaigns:live"] and .code_challenge_methods_supported == ["S256"] and .token_endpoint_auth_methods_supported == ["none"]' <<<"$meta" >/dev/null \
   && pass "RFC 8414 metadata" || { echo "$meta"; fail "metadata"; }
 jwks_n="$(curl -s "$BASE/oauth2/jwks.json" | jq -r '.keys[0].n')"
 key_n="$(openssl rsa -in "$OAUTH_KEY" -noout -modulus 2>/dev/null | cut -d= -f2 | php -r 'echo rtrim(strtr(base64_encode(hex2bin(trim(stream_get_contents(STDIN)))), "+/", "-_"), "=");')"

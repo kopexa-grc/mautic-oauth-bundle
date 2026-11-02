@@ -44,6 +44,40 @@ Configuration, security model and endpoints:
 | `kopexa_oauth_redirect_hosts` | `MAUTIC_OAUTH_REDIRECT_HOSTS` | allowed redirect hosts |
 | `kopexa_oauth_resource` | `MAUTIC_OAUTH_RESOURCE` | token audience (default `<site_url>/mcp`) |
 | `kopexa_oauth_access_ttl` / `kopexa_oauth_refresh_ttl` | via `MAUTIC_CONFIG_PARAMETERS` | seconds (3600 / 2592000) |
+| `kopexa_oauth_scopes`, `kopexa_oauth_default_scopes`, `kopexa_oauth_optin_scopes` | via `MAUTIC_CONFIG_PARAMETERS` | operator overrides for scopes, see below (default: none) |
+
+## Scopes
+
+The server has no scopes of its own: the bundles that enforce scopes
+declare them. Implement `ScopeProviderInterface` in an autoconfigured
+service; the server collects all providers:
+
+```php
+use MauticPlugin\KopexaOAuthBundle\Scope\ScopeDefinition;
+use MauticPlugin\KopexaOAuthBundle\Scope\ScopeProviderInterface;
+
+final class MyScopes implements ScopeProviderInterface
+{
+    public function scopes(): iterable
+    {
+        yield new ScopeDefinition('reports:read', 'Read reports', default: true);
+        yield new ScopeDefinition('reports:delete', 'Delete reports', optIn: true);
+    }
+}
+```
+
+| Flag | Effect |
+|---|---|
+| `default` | granted when a client requests no scope; always kept on the consent page (cannot be unticked) |
+| `optIn` | shown highlighted and unticked on the consent page: the user has to tick it, even if the client requests it |
+
+The scopes appear in the metadata (`scopes_supported`), the client
+registration response and on the consent page. A scope declared by two
+providers is an error. Operators can add scopes or replace descriptions
+(`kopexa_oauth_scopes`: scope => description) and make further scopes
+default or opt-in (`kopexa_oauth_default_scopes`, `kopexa_oauth_optin_scopes`).
+[kopexa/mautic-mcp-bundle](https://github.com/kopexa-grc/mautic-mcp-bundle)
+declares the `mcp:*` scopes this way.
 
 
 ## Development

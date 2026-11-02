@@ -8,26 +8,26 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use MauticPlugin\KopexaOAuthBundle\Entity\Scope;
-use MauticPlugin\KopexaOAuthBundle\Service\Settings;
+use MauticPlugin\KopexaOAuthBundle\Scope\ScopeRegistry;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
-    public function __construct(private readonly Settings $settings)
+    public function __construct(private readonly ScopeRegistry $registry)
     {
     }
 
     public function getScopeEntityByIdentifier(string $identifier): ?ScopeEntityInterface
     {
-        return array_key_exists($identifier, $this->settings->scopes()) ? new Scope($identifier) : null;
+        return $this->registry->has($identifier) ? new Scope($identifier) : null;
     }
 
     public function finalizeScopes(array $scopes, string $grantType, ClientEntityInterface $clientEntity, ?string $userIdentifier = null, ?string $authCodeId = null): array
     {
-        // No scope requested: grant read access only.
+        // No scope requested: grant the default scopes.
         if ([] === $scopes && 'authorization_code' === $grantType) {
-            return [new Scope('mcp:read')];
+            return array_map(fn (string $name): Scope => new Scope($name), $this->registry->defaults());
         }
 
-        return array_values(array_filter($scopes, fn (ScopeEntityInterface $s): bool => array_key_exists($s->getIdentifier(), $this->settings->scopes())));
+        return array_values(array_filter($scopes, fn (ScopeEntityInterface $s): bool => $this->registry->has($s->getIdentifier())));
     }
 }

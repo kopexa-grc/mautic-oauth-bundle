@@ -11,6 +11,7 @@ use MauticPlugin\KopexaOAuthBundle\Repository\GrantRepository;
 use MauticPlugin\KopexaOAuthBundle\Service\Psr7Bridge;
 use MauticPlugin\KopexaOAuthBundle\Service\RedirectUriPolicy;
 use MauticPlugin\KopexaOAuthBundle\Service\ServerFactory;
+use MauticPlugin\KopexaOAuthBundle\Scope\ScopeRegistry;
 use MauticPlugin\KopexaOAuthBundle\Service\Settings;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ final class ServerController
 {
     public function __construct(
         private readonly Settings $settings,
+        private readonly ScopeRegistry $registry,
         private readonly ServerFactory $factory,
         private readonly ClientRepository $clients,
         private readonly GrantRepository $grants,
@@ -50,7 +52,7 @@ final class ServerController
             'registration_endpoint'                 => $issuer.$this->path('kopexa_oauth_register'),
             'revocation_endpoint'                   => $issuer.$this->path('kopexa_oauth_revoke'),
             'jwks_uri'                              => $issuer.$this->path('kopexa_oauth_jwks'),
-            'scopes_supported'                      => array_keys($this->settings->scopes()),
+            'scopes_supported'                      => $this->registry->names(),
             'response_types_supported'              => ['code'],
             'response_modes_supported'              => ['query'],
             'grant_types_supported'                 => ['authorization_code', 'refresh_token'],
@@ -117,7 +119,7 @@ final class ServerController
             'grant_types'                => ['authorization_code', 'refresh_token'],
             'response_types'             => ['code'],
             'token_endpoint_auth_method' => 'none',
-            'scope'                      => implode(' ', array_keys($this->settings->scopes())),
+            'scope'                      => implode(' ', $this->registry->names()),
         ], 201, ['Cache-Control' => 'no-store']);
     }
 

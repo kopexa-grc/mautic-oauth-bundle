@@ -85,8 +85,12 @@ b64url_decode() { local s; s="$(tr '_-' '/+' <<<"$1")"; while (( ${#s} % 4 )); d
 OAUTH_KEY="$WORK/oauth.pem"
 configure_oauth() {
   openssl genrsa -out "$OAUTH_KEY" 2048 2>/dev/null
+  # Scopes normally come from scope providers (e.g. the MCP bundle); this
+  # bundle alone gets them from the operator overrides.
   set_params "$(jq -n --rawfile k "$OAUTH_KEY" --arg e "$(openssl rand -hex 32)" \
-    '{kopexa_oauth_private_key: $k, kopexa_oauth_encryption_key: $e}')"
+    '{kopexa_oauth_private_key: $k, kopexa_oauth_encryption_key: $e,
+      kopexa_oauth_scopes: {"mcp:read": "Read", "mcp:write": "Write", "mcp:campaigns:live": "Change running campaigns"},
+      kopexa_oauth_default_scopes: ["mcp:read"], kopexa_oauth_optin_scopes: ["mcp:campaigns:live"]}')"
 }
 
 REDIRECT="http://127.0.0.1:33418/callback"

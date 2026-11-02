@@ -17,7 +17,7 @@ return function (ContainerConfigurator $configurator): void {
         ->public();
 
     $services->load('MauticPlugin\\KopexaOAuthBundle\\', '../')
-        ->exclude('../{'.implode(',', array_merge(MauticCoreExtension::DEFAULT_EXCLUDES, ['Tests', 'DependencyInjection', 'Entity', 'EventListener'])).'}');
+        ->exclude('../{'.implode(',', array_merge(MauticCoreExtension::DEFAULT_EXCLUDES, ['Tests', 'DependencyInjection', 'Entity', 'EventListener', 'Scope/ScopeDefinition.php'])).'}');
 
     // Mautic's API subscriber blocks every URL containing "/oauth" while its
     // REST API is disabled; the decorator exempts this server's endpoints.
