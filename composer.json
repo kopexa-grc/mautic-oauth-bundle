@@ -11,11 +11,11 @@
         "pkce",
         "mcp"
     ],
-    "homepage": "https://github.com/kopexa-grc/mautic-stack/tree/main/image/extensions/mautic-oauth-bundle",
+    "homepage": "https://github.com/kopexa-grc/mautic-oauth-bundle",
     "support": {
-        "issues": "https://github.com/kopexa-grc/mautic-stack/issues",
+        "issues": "https://github.com/kopexa-grc/mautic-oauth-bundle/issues",
         "source": "https://github.com/kopexa-grc/mautic-oauth-bundle",
-        "docs": "https://github.com/kopexa-grc/mautic-stack/tree/main/docs"
+        "security": "https://github.com/kopexa-grc/mautic-oauth-bundle/security/policy"
     },
     "authors": [
         {
