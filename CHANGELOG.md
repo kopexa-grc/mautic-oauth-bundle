@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.2.2...v0.3.0) (2026-11-02)
+
+
+### Features
+
+* scope mcp:contacts:write for contact and segment changes via MCP ([4e6e1a4](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/4e6e1a458bdd610505048dde81aa643d5769d81f))
+
 ## [0.2.2](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.2.1...v0.2.2) (2026-11-02)
 
 
