@@ -57,7 +57,8 @@ return [
         // Scopes this server issues.
         'kopexa_oauth_scopes'         => [
             'mcp:read'           => 'Read contacts, segments, emails, campaigns and statistics',
-            'mcp:write'          => 'Create unpublished emails and campaigns, edit campaign flows of unpublished campaigns',
+            'mcp:write'          => 'Create and edit unpublished emails and campaigns and their campaign flows',
+            'mcp:contacts:write' => 'Create and update contacts, create segments, add contacts to segments and remove them (contacts added to segments can enter running campaigns and segment emails)',
             'mcp:campaigns:live' => 'Change RUNNING campaigns: changes are live and Mautic may send emails because of them',
         ],
         // Scopes the consent page shows unticked and highlighted: the user
