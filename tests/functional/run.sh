@@ -9,6 +9,10 @@ configure_oauth
 start_server
 
 echo "OAuth 2.1 authorization server"
+# Mautic's REST API stays disabled (its default): the OAuth endpoints must
+# work anyway, and the API itself must stay blocked.
+[[ "$(curl -s "$BASE/api/contacts" | jq -r '.errors[0].type')" == api_disabled ]] \
+  && pass "Mautic REST API disabled, still blocked" || fail "REST API not blocked"
 meta="$(curl -s "$BASE/.well-known/oauth-authorization-server")"
 jq -e --arg b "$BASE" '.issuer == $b and .code_challenge_methods_supported == ["S256"] and .token_endpoint_auth_methods_supported == ["none"]' <<<"$meta" >/dev/null \
   && pass "RFC 8414 metadata" || { echo "$meta"; fail "metadata"; }

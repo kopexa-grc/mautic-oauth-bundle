@@ -41,7 +41,7 @@ install_mautic() {
     --admin_username=admin --admin_email=admin@example.com --admin_password="$ADMIN_PW" \
     --admin_firstname=Admin --admin_lastname=Test >"$WORK/install.log" 2>&1 \
     || { tail -30 "$WORK/install.log"; fail "mautic:install"; }
-  set_params '{"api_enabled": true, "api_enable_basic_auth": true, "mailer_dsn": "null://null"}'
+  set_params '{"mailer_dsn": "null://null"}'
   console mautic:plugins:reload >/dev/null || fail "mautic:plugins:reload"
   pass "Mautic installed, plugins reloaded"
 }
