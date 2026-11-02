@@ -8,7 +8,7 @@ use MauticPlugin\KopexaOAuthBundle\Controller\ServerController;
 return [
     'name'        => 'OAuth 2.1',
     'description' => 'OAuth 2.1 authorization server (authorization code + PKCE, dynamic client registration) for MCP clients.',
-    'version'     => '0.2.2', // x-release-please-version
+    'version'     => '0.3.0', // x-release-please-version
     'author'      => 'Kopexa',
     'routes'      => [
         // Public endpoints (no Mautic session).
