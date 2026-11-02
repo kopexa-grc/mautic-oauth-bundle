@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.2.0...v0.2.1) (2026-11-02)
+
+
+### Bug fixes
+
+* require Mautic ^7.2, the versions this plugin is tested with ([9d1c12e](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/9d1c12e49d59146fe39b56294bd73edb4200fb91))
+* require PHP ~8.4, the versions this plugin is tested on ([08bdb35](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/08bdb35190e56f906c92022c978461757b0f44f8))
+
 ## 0.2.0 – 2026-11-02
 
 - The consent page lists the requested scopes as checkboxes. Users can grant fewer scopes than requested.
