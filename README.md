@@ -61,7 +61,8 @@ Configuration, security model and endpoints:
   release PR open that bumps `VERSION`, the plugin version and
   `CHANGELOG.md`. Merging it tags `v<version>` and creates the GitHub
   release. Packagist and mautic-stack's Renovate pick the tag up.
-- **Dependencies** are kept current by Renovate. Composer constraint updates
+- **Dependencies** are kept current by Renovate, once a month
+  (security fixes immediately). Composer constraint updates
   are committed as `fix(deps):` and so lead to a patch release; CI-only
   updates (`ci:`) do not.
 
