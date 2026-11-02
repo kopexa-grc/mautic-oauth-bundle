@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.3.0...v0.4.0) (2026-11-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* without a scope provider (or the overrides) the server issues no scopes. kopexa/mautic-mcp-bundle >= 0.5 declares the mcp:* scopes.
+
+### Features
+
+* scopes are declared by the bundles that enforce them ([a85709c](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/a85709c3bcd0e1d5fe666ebeaf456595bff884a7))
+
 ## [0.3.0](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.2.2...v0.3.0) (2026-11-02)
 
 
