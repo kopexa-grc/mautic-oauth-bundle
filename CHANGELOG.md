@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.2.1...v0.2.2) (2026-11-02)
+
+
+### Bug fixes
+
+* OAuth endpoints work while Mautic's REST API is disabled ([4a5ea92](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/4a5ea92e3f6c59f77090a40d6eb6cd10ff610185))
+
 ## [0.2.1](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.2.0...v0.2.1) (2026-11-02)
 
 
