@@ -1,5 +1,7 @@
 # kopexa/mautic-oauth-bundle
 
+[![Packagist](https://img.shields.io/packagist/v/kopexa/mautic-oauth-bundle)](https://packagist.org/packages/kopexa/mautic-oauth-bundle) [![ci](https://github.com/kopexa-grc/mautic-oauth-bundle/actions/workflows/ci.yml/badge.svg)](https://github.com/kopexa-grc/mautic-oauth-bundle/actions/workflows/ci.yml)
+
 OAuth 2.1 authorization server for Mautic 7, so MCP clients (Claude,
 ChatGPT, …) can connect with the standard MCP authorization flow.
 
@@ -10,12 +12,6 @@ Mautic 7 (Composer-based installation):
 ```bash
 composer require kopexa/mautic-oauth-bundle
 php bin/console mautic:plugins:reload
-```
-
-Until the package is on Packagist, add the repository first:
-
-```bash
-composer config repositories.mautic-oauth-bundle vcs https://github.com/kopexa-grc/mautic-oauth-bundle
 ```
 
 Configure the signing and encryption keys (`kopexa_oauth_private_key`, `kopexa_oauth_encryption_key`) in Mautic's `config/local.php` or, in the kopexa image, via environment variables.
