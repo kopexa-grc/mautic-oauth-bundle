@@ -195,9 +195,9 @@ button{flex:1;padding:.7rem;border-radius:8px;border:1px solid #006cb8;font:inhe
 </style></head><body><main>
 <h1><strong>{$e($authRequest->getClient()->getName())}</strong> wants to access Mautic</h1>
 <p>Signed in as <strong>{$e($userName)}</strong> ({$e($email)}). The application acts with your Mautic permissions. Choose what it may do:</p>
+<form method="post">
 <ul>{$items}</ul>
 <p class="muted">After approval you are sent back to <strong>{$e($host)}</strong>. You can revoke access by disconnecting the application in its settings.</p>
-<form method="post">
 <input type="hidden" name="_token" value="{$e($token)}"><input type="hidden" name="txn" value="{$e($txn)}">
 <div class="actions"><button class="deny" name="decision" value="deny">Deny</button><button class="approve" name="decision" value="approve">Allow</button></div>
 </form></main></body></html>

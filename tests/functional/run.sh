@@ -42,6 +42,16 @@ jq -e '.typ == "at+jwt"' <<<"$(b64url_decode "$h")" >/dev/null \
   && jq -e --arg b "$BASE" '.iss == $b and .aud == ($b + "/mcp") and .scope == "mcp:read mcp:write"' <<<"$(b64url_decode "$p")" >/dev/null \
   && printf '%s.%s' "$h" "$p" | openssl dgst -sha256 -verify "$WORK/pub.pem" -signature "$WORK/sig" >/dev/null \
   && pass "RFC 9068 JWT: claims, signature; live scope not granted by default" || fail "JWT"
+# Scopes ticked on the consent page end up in the token (the form a browser posts).
+chk="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"; chc="$(printf '%s' "$chk" | openssl dgst -sha256 -binary | b64url)"
+authorize "$client" "$chc" S256 'mcp:read mcp:write' >/dev/null
+loc="$(consent approve)"; c2="$(sed -n 's/.*[?&]code=\([^&]*\).*/\1/p' <<<"$loc")"
+[[ "$(token "$client" "$c2" "$chk")" == 200 ]] && [[ "$(b64url_decode "$(jq -r .access_token "$WORK/token" | cut -d. -f2)" | jq -r .scope)" == "mcp:read mcp:write" ]] \
+  && pass "ticked scopes (mcp:write) are granted" || { b64url_decode "$(jq -r .access_token "$WORK/token" | cut -d. -f2)"; fail "ticked scope not granted"; }
+authorize "$client" "$chc" S256 'mcp:read mcp:write mcp:campaigns:live' >/dev/null
+loc="$(consent approve mcp:campaigns:live)"; c2="$(sed -n 's/.*[?&]code=\([^&]*\).*/\1/p' <<<"$loc")"
+[[ "$(token "$client" "$c2" "$chk")" == 200 ]] && [[ "$(b64url_decode "$(jq -r .access_token "$WORK/token" | cut -d. -f2)" | jq -r .scope)" == "mcp:read mcp:write mcp:campaigns:live" ]] \
+  && pass "opt-in scope granted when ticked" || fail "ticked opt-in scope not granted"
 refresh_grant() { curl -s -o "$WORK/token" -w '%{http_code}' -X POST "$BASE/oauth2/token" --data-urlencode grant_type=refresh_token --data-urlencode "refresh_token=$1" --data-urlencode "client_id=$client"; }
 first="$(refresh_grant "$refresh")"; second="$(refresh_grant "$refresh")"
 [[ "$first/$second" == "200/400" ]] && pass "refresh tokens rotate" || fail "refresh rotation ($first/$second)"
