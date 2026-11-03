@@ -21,13 +21,19 @@ key_n="$(openssl rsa -in "$OAUTH_KEY" -noout -modulus 2>/dev/null | cut -d= -f2 
 [[ "$jwks_n" == "$key_n" ]] && pass "JWKS publishes the signing key" || fail "JWKS"
 [[ "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/oauth2/register" -H 'Content-Type: application/json' -d '{"redirect_uris":["https://evil.example/cb"]}')" == 400 ]] \
   && pass "registration with a foreign redirect host rejected" || fail "foreign redirect host accepted"
+[[ "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/oauth2/register" -H 'Content-Type: application/json' -d '{"redirect_uris":["http://evil.example/cb"]}')" == 400 ]] \
+  && pass "registration with a non-https redirect rejected (loopback excepted)" || fail "http redirect accepted"
 
 client="$(oauth_client)"
 [[ "$client" =~ ^[0-9a-f]{32}$ ]] && pass "dynamic client registration" || fail "registration"
 verifier="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"
 challenge="$(printf '%s' "$verifier" | openssl dgst -sha256 -binary | b64url)"
 [[ "$(authorize "$client" "$challenge" S256 'mcp:read')" == *"/s/login"* ]] && pass "authorization requires Mautic login" || fail "no login required"
-login >/dev/null
+# Logging in returns to the authorization request (Mautic's target path).
+csrf="$(curl -s -c "$JAR" -b "$JAR" "$BASE/s/login" | sed -n 's/.*name="_csrf_token" value="\([^"]*\)".*/\1/p' | head -1)"
+back="$(curl -s -o /dev/null -w '%{redirect_url}' -c "$JAR" -b "$JAR" -H "Origin: $BASE" -H "Referer: $BASE/s/login" \
+  --data-urlencode _username=admin --data-urlencode "_password=$ADMIN_PW" --data-urlencode "_csrf_token=$csrf" "$BASE/s/login_check")"
+[[ "$back" == *"/s/oauth2/authorize?"*"client_id=$client"* ]] && pass "login returns to the authorization request" || { echo "$back"; fail "login does not return to the consent page"; }
 [[ "$(authorize "$client" "$challenge" plain 'mcp:read')" == "302 $REDIRECT?"*"error=invalid_request"* ]] && pass "PKCE plain rejected" || fail "PKCE plain accepted"
 [[ "$(authorize "$client" "$challenge" S256 'mcp:read mcp:write mcp:campaigns:live')" == "200 " ]] \
   && grep -q 'value="mcp:campaigns:live">' "$WORK/page" && pass "consent page, opt-in scope unticked" || fail "consent page"
@@ -53,6 +59,10 @@ loc="$(consent approve mcp:campaigns:live)"; c2="$(sed -n 's/.*[?&]code=\([^&]*\
 [[ "$(token "$client" "$c2" "$chk")" == 200 ]] && [[ "$(b64url_decode "$(jq -r .access_token "$WORK/token" | cut -d. -f2)" | jq -r .scope)" == "mcp:read mcp:write mcp:campaigns:live" ]] \
   && pass "opt-in scope granted when ticked" || fail "ticked opt-in scope not granted"
 refresh_grant() { curl -s -o "$WORK/token" -w '%{http_code}' -X POST "$BASE/oauth2/token" --data-urlencode grant_type=refresh_token --data-urlencode "refresh_token=$1" --data-urlencode "client_id=$client"; }
-first="$(refresh_grant "$refresh")"; second="$(refresh_grant "$refresh")"
+first="$(refresh_grant "$refresh")"; refresh2="$(jq -r .refresh_token "$WORK/token")"; second="$(refresh_grant "$refresh")"
 [[ "$first/$second" == "200/400" ]] && pass "refresh tokens rotate" || fail "refresh rotation ($first/$second)"
+[[ "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/oauth2/revoke" --data-urlencode "token=$refresh2" --data-urlencode "client_id=$client")" == 200 ]] \
+  && [[ "$(refresh_grant "$refresh2")" == 400 ]] && pass "revoked refresh token rejected (RFC 7009)" || fail "revocation"
+authorize "$client" "$chc" S256 'mcp:read' >/dev/null
+[[ "$(consent deny)" == "$REDIRECT?"*"error=access_denied"* ]] && pass "denied consent returns access_denied" || fail "deny"
 echo "all OAuth checks passed"
