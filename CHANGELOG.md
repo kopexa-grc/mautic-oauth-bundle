@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.4.0...v0.4.1) (2026-11-03)
+
+
+### Bug fixes
+
+* consent page posted no scopes — every token had only the default scope ([a712af5](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/a712af56ae309ae81b65ef03a82e487908b1d6e4))
+
 ## [0.4.0](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.3.0...v0.4.0) (2026-11-02)
 
 
