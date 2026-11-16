@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.4.1...v0.5.0) (2026-11-16)
+
+
+### Features
+
+* scope groups on the consent page (ScopeDefinition group) ([fee1411](https://github.com/kopexa-grc/mautic-oauth-bundle/commit/fee1411d8c4c42c1add43aeb9791f3e35216f110))
+
 ## [0.4.1](https://github.com/kopexa-grc/mautic-oauth-bundle/compare/v0.4.0...v0.4.1) (2026-11-03)
 
 
