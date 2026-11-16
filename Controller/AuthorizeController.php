@@ -162,12 +162,15 @@ final class AuthorizeController
         $e        = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $redirect = (string) ($authRequest->getRedirectUri() ?? $authRequest->getClient()->getRedirectUri()[0] ?? '');
         $host     = (string) parse_url($redirect, PHP_URL_HOST);
-        $items    = '';
+        // Scopes under their group's heading, groups in the order they first appear.
+        $groups = [];
         foreach ($authRequest->getScopes() as $scope) {
             $id       = $scope->getIdentifier();
             $required = $this->registry->isDefault($id);
             $isOptin  = $this->registry->isOptIn($id);
-            $items .= sprintf(
+            $group    = $this->registry->group($id) ?: 'Other';
+            $groups[$group] ??= '';
+            $groups[$group] .= sprintf(
                 '<li class="%s"><label><input type="checkbox" name="scopes[]" value="%s"%s%s> <code>%s</code> %s</label></li>',
                 $isOptin ? 'optin' : '',
                 $e($id),
@@ -176,6 +179,10 @@ final class AuthorizeController
                 $e($id),
                 $e($this->registry->description($id))
             );
+        }
+        $items = '';
+        foreach ($groups as $group => $list) {
+            $items .= count($groups) > 1 ? sprintf('<li class="group"><h2>%s</h2><ul>%s</ul></li>', $e($group), $list) : $list;
         }
         $token = $this->csrf->getToken(self::CSRF_ID)->getValue();
 
@@ -188,6 +195,7 @@ body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#f4f6f8;color:#10253
 main{max-width:30rem;margin:4rem auto;padding:2rem;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 h1{font-size:1.3rem;margin:0 0 1rem} code{background:#eef2f6;padding:0 .3em;border-radius:4px}
 ul{list-style:none;padding-left:0} li{margin:.5rem 0} .muted{color:#5b6b7d;font-size:.9rem}
+li.group{margin:1rem 0 0} h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#5b6b7d;margin:0}
 li.optin{border-left:3px solid #c62828;padding-left:.6rem;color:#7f1d1d}
 .actions{display:flex;gap:.75rem;margin-top:1.5rem}
 button{flex:1;padding:.7rem;border-radius:8px;border:1px solid #006cb8;font:inherit;cursor:pointer}

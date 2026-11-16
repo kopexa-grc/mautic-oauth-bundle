@@ -48,16 +48,16 @@ class ScopeRegistry
         $descriptions = $this->parameters->get('kopexa_oauth_scopes');
         foreach (is_array($descriptions) ? $descriptions : [] as $name => $description) {
             $old            = $scopes[$name] ?? null;
-            $scopes[$name]  = new ScopeDefinition((string) $name, (string) $description, $old?->default ?? false, $old?->optIn ?? false);
+            $scopes[$name]  = new ScopeDefinition((string) $name, (string) $description, $old?->default ?? false, $old?->optIn ?? false, $old?->group ?? '');
         }
         foreach ($this->names('kopexa_oauth_default_scopes') as $name) {
             if (isset($scopes[$name])) {
-                $scopes[$name] = new ScopeDefinition($name, $scopes[$name]->description, true, false);
+                $scopes[$name] = new ScopeDefinition($name, $scopes[$name]->description, true, false, $scopes[$name]->group);
             }
         }
         foreach ($this->names('kopexa_oauth_optin_scopes') as $name) {
             if (isset($scopes[$name]) && !$scopes[$name]->default) {
-                $scopes[$name] = new ScopeDefinition($name, $scopes[$name]->description, false, true);
+                $scopes[$name] = new ScopeDefinition($name, $scopes[$name]->description, false, true, $scopes[$name]->group);
             }
         }
 
@@ -94,6 +94,11 @@ class ScopeRegistry
     public function isOptIn(string $name): bool
     {
         return $this->all()[$name]->optIn ?? false;
+    }
+
+    public function group(string $name): string
+    {
+        return $this->all()[$name]->group ?? '';
     }
 
     public function description(string $name): string

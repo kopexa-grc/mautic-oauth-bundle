@@ -61,7 +61,7 @@ final class MyScopes implements ScopeProviderInterface
     public function scopes(): iterable
     {
         yield new ScopeDefinition('reports:read', 'Read reports', default: true);
-        yield new ScopeDefinition('reports:delete', 'Delete reports', optIn: true);
+        yield new ScopeDefinition('reports:delete', 'Delete reports', optIn: true, group: 'Delete');
     }
 }
 ```
@@ -70,6 +70,7 @@ final class MyScopes implements ScopeProviderInterface
 |---|---|
 | `default` | granted when a client requests no scope; always kept on the consent page (cannot be unticked) |
 | `optIn` | shown highlighted and unticked on the consent page: the user has to tick it, even if the client requests it |
+| `group` | heading the scope is listed under on the consent page (e.g. `Read`, `Edit`, `Live`), groups in the order their first scope appears; without groups the page shows one plain list |
 
 The scopes appear in the metadata (`scopes_supported`), the client
 registration response and on the consent page. A scope declared by two

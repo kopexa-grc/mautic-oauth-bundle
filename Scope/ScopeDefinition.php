@@ -15,12 +15,14 @@ final readonly class ScopeDefinition
      * @param string $description Shown on the consent page
      * @param bool   $default     Granted when a client requests no scope; always kept on the consent page (cannot be unticked)
      * @param bool   $optIn       Shown highlighted and unticked on the consent page: the user has to tick it explicitly
+     * @param string $group       Heading the scope is listed under on the consent page (e.g. "Read", "Edit"); empty: "Other"
      */
     public function __construct(
         public string $name,
         public string $description,
         public bool $default = false,
         public bool $optIn = false,
+        public string $group = '',
     ) {
         if (1 !== preg_match('/^[\x21\x23-\x5B\x5D-\x7E]+$/', $name)) {
             throw new \InvalidArgumentException(sprintf('Invalid OAuth scope name "%s" (RFC 6749, section 3.3).', $name));
